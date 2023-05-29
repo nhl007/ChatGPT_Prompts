@@ -1,4 +1,4 @@
-import Image from 'next/image';
+import Feed from '@/components/Feed';
 
 export default function Home() {
   return (
@@ -12,6 +12,7 @@ export default function Home() {
         Gpt Prompts is an open source AI Powered prompting tool for modern world
         to discover , create and share creative prompts
       </p>
+      <Feed />
     </section>
   );
 }
