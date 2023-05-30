@@ -1,0 +1,3 @@
+type params = {
+  id: string;
+};
