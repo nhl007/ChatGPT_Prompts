@@ -1,23 +1,41 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { signIn, signOut, useSession, getProviders } from 'next-auth/react';
+import {
+  signIn,
+  signOut,
+  useSession,
+  getProviders,
+  ClientSafeProvider,
+} from 'next-auth/react';
 import Link from 'next/link';
 import Image from 'next/image';
+
+interface ProviderData {
+  [key: string]: ClientSafeProvider;
+}
 
 export default function Nav() {
   const { data: session } = useSession();
 
-  // :todo  type has to be properly assigned
-  const [providers, setProviders] = useState<any>(null);
-  const [toggleDropdown, setToggleDropdown] = useState(false);
+  const [providers, setProviders] = useState<ProviderData | null>(null);
+  const [toggleDropdown, setToggleDropdown] = useState<boolean>(false);
 
   useEffect(() => {
-    (async () => {
-      const res = await getProviders();
-      setProviders(res);
-    })();
+    const fetchProviders = async () => {
+      try {
+        const res = await getProviders();
+        // console.log(res);
+        setProviders(res);
+      } catch (error) {
+        // Handle error appropriately
+        console.error('Failed to fetch providers:', error);
+      }
+    };
+
+    fetchProviders();
   }, []);
+
   return (
     <nav className='flex-between w-full mb-16 pt-3'>
       <Link href='/' className='flex gap-2 flex-center'>
@@ -28,7 +46,7 @@ export default function Nav() {
           height={30}
           className='object-contain'
         />
-        <p className='logo_text'>Promptopia</p>
+        <p className='logo_text'>GPT Prompts</p>
       </Link>
 
       {/*//? Desktop Navigation */}
@@ -39,14 +57,20 @@ export default function Nav() {
               Create Post
             </Link>
 
-            {/*//:todo | on click handler onClick={signOut} needs to be implemented with proper type */}
-            <button type='button' className='outline_btn'>
+            <button
+              type='button'
+              onClick={() => {
+                // setToggleDropdown(false);
+                signOut();
+              }}
+              className='outline_btn'
+            >
               Sign Out
             </button>
-
             <Link href='/profile'>
               <Image
-                src={session?.user.image || ''}
+                // src='/assets/images/logo.svg'
+                src={session.user.image || ''}
                 width={37}
                 height={37}
                 className='rounded-full'
@@ -57,19 +81,20 @@ export default function Nav() {
         ) : (
           <>
             {providers &&
-              //:todo type needs to be properly formatted
-              Object.values(providers).map((provider: any) => (
-                <button
-                  type='button'
-                  key={provider.name}
-                  onClick={() => {
-                    signIn(provider.id);
-                  }}
-                  className='black_btn'
-                >
-                  Sign in
-                </button>
-              ))}
+              Object.values(providers).map(
+                (provider: { id: string; name: string }) => (
+                  <button
+                    type='button'
+                    key={provider.name}
+                    onClick={() => {
+                      signIn(provider.id);
+                    }}
+                    className='black_btn'
+                  >
+                    Sign in
+                  </button>
+                )
+              )}
           </>
         )}
       </div>
@@ -79,7 +104,8 @@ export default function Nav() {
         {session?.user ? (
           <div className='flex'>
             <Image
-              src={session?.user.image || ''}
+              // src='/assets/images/logo.svg'
+              src={session.user.image || ''}
               width={37}
               height={37}
               className='rounded-full'
@@ -119,21 +145,18 @@ export default function Nav() {
         ) : (
           <>
             {providers &&
-              Object.values(providers).map(
-                //:todo type needs to be properly formatted
-                (provider: any) => (
-                  <button
-                    type='button'
-                    key={provider.name}
-                    onClick={() => {
-                      signIn(provider.id);
-                    }}
-                    className='black_btn'
-                  >
-                    Sign in
-                  </button>
-                )
-              )}
+              Object.values(providers).map((provider) => (
+                <button
+                  type='button'
+                  key={provider.name}
+                  onClick={() => {
+                    signIn(provider.id);
+                  }}
+                  className='black_btn'
+                >
+                  Sign in
+                </button>
+              ))}
           </>
         )}
       </div>

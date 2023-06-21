@@ -1,4 +1,6 @@
 import Feed from '@/components/Feed';
+import LoadingSpinner from '@/components/Loading';
+import { Suspense } from 'react';
 
 export default function Home() {
   return (
@@ -12,7 +14,9 @@ export default function Home() {
         Gpt Prompts is an open source AI Powered prompting tool for modern world
         to discover , create and share creative prompts
       </p>
-      <Feed />
+      <Suspense fallback={<LoadingSpinner />}>
+        <Feed />
+      </Suspense>
     </section>
   );
 }
